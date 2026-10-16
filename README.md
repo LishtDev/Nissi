@@ -1,233 +1,124 @@
-# Barbichou's Secret Garden 🎂🌙
+# Barbichou's Secret Garden
 
-Un jardin secret sous un ciel étoilé, offert à **Nissi**, alias **Barbichou**,
-comme cadeau d'anniversaire numérique : une petite histoire interactive qui se
-déroule en six chapitres, de l'invitation à la surprise finale.
+Un petit site d'anniversaire statique (HTML, CSS, JavaScript natif) pour Nissi, alias « Barbichou ».
+Aucun backend, aucune base de données, aucun suivi, aucune ressource externe (pas de CDN, pas de police web).
 
-Le site est **100 % statique** : HTML5, CSS3 et JavaScript natif. Aucun serveur,
-aucune base de données, aucun compte, aucune collecte de données, aucune
-dépendance payante. Il se déploie en quelques minutes sur GitHub Pages ou Netlify.
+Parcours : invitation → « Joyeux anniversaire, Nissi » → galerie de souvenirs → lettre → musique → mini-jeu des étoiles → surprise finale.
 
----
-
-## 1. Aperçu de l'expérience
-
-| Chapitre | Contenu |
-|---------:|---------|
-| 1 | **L'invitation** — écran immersif, ciel étoilé animé, bouton « Entrer dans mon univers ». |
-| 2 | **Le message d'accueil** — « Joyeux anniversaire, Nissi / Barbichou. » |
-| 3 | **La galerie des souvenirs** — grille responsive + visionneuse accessible. |
-| 4 | **La lettre pour Barbichou** — enveloppe à ouvrir, lettre à dérouler. |
-| 5 | **Les étoiles de Barbichou** — mini-jeu : révéler 5 étoiles, sans chrono. |
-| 6 | **La surprise finale** — scène plus lumineuse, particules dorées, message final. |
-
-Un **lecteur musical discret** (chapitre « musique »), présent après l'entrée,
-ne démarre **jamais** tout seul : il faut cliquer sur « lecture ».
-
----
-
-## 2. Structure du projet
+## Structure
 
 ```
-Nissi/
-├── index.html                  # Page unique, structure sémantique
-├── README.md                   # Ce fichier
-├── RAPPORT-TESTS.md            # Rapport des vérifications réellement effectuées
-├── .gitignore
-├── config/
-│   └── content.js              # ⭐ TOUS les textes / médias / réglages
-├── assets/
-│   ├── css/style.css           # Design nocturne responsive
-│   ├── js/
-│   │   ├── app.js              # Orchestrateur (chapitres, décor, navigation)
-│   │   ├── gallery.js          # Galerie + visionneuse
-│   │   ├── game.js             # Mini-jeu des étoiles
-│   │   └── music.js            # Lecteur musical robuste
-│   ├── images/
-│   │   ├── carte-nissi.png     # Carte fournie (utilisée dans la galerie)
-│   │   ├── favicon.svg
-│   │   └── photos/             # ⭐ Dépose ici tes photos (voir LISEZ-MOI.txt)
-│   ├── media/                  # Vidéos souvenirs (fournies)
-│   └── audio/                  # Musiques (titre-01.mp3 … titre-04.mp3)
-└── album/                      # Médias originaux fournis (source)
+index.html
+config/content.js          ← TOUS les textes, la lettre, les photos, les musiques, les messages du jeu
+assets/css/style.css
+assets/js/app.js           scènes, lettre, finale, ciel étoilé
+assets/js/gallery.js       grille + visionneuse
+assets/js/music.js         lecteur
+assets/js/game.js          mini-jeu
+assets/images/photos/      photos et aperçus vidéo
+assets/video/              vidéos (mp4)
+assets/audio/              musiques (mp3)
 ```
 
-> Pour personnaliser le site, tu n'as en pratique qu'à modifier
-> **`config/content.js`** et à déposer tes fichiers dans
-> `assets/images/photos/` et `assets/audio/`.
+## 1. Lancer en local
 
----
+Le plus simple : double-cliquer sur `index.html` (fonctionne directement dans le navigateur).
 
-## 3. Ouvrir le projet localement
+Avec un petit serveur (recommandé pour tester comme en ligne) :
 
-### a) Le plus simple (double-clic)
-Ouvre `index.html` dans un navigateur moderne. Le site fonctionne même ouvert
-directement depuis le disque (les scripts ne sont pas des modules ES).
-
-### b) Avec un petit serveur local (recommandé pour tester comme en ligne)
 ```bash
-# depuis le dossier du projet
+cd barbichou-secret-garden
 python3 -m http.server 8000
-# puis ouvre http://localhost:8000
-```
-ou, avec Node installé :
-```bash
-npx serve .
+# puis ouvrir http://localhost:8000
 ```
 
----
+## 2. Ajouter, retirer, remplacer des photos
 
-## 4. Remplacer les photographies
-
-1. Dépose tes fichiers dans `assets/images/photos/` (ou `assets/media/` pour
-   les vidéos).
-2. Déclare-les dans `config/content.js`, section `galerie.items` :
+1. Copie la photo dans `assets/images/photos/` (JPEG ou WebP, environ 1200 px de large, moins de 400 Ko si possible).
+2. Dans `config/content.js`, section `gallery.items`, ajoute une ligne :
 
 ```js
-{ id: "photo-1", type: "image",
-  src: "assets/images/photos/photo-1.jpg",
-  alt: "Description courte et utile (accessibilité)",
-  legende: "Le texte affiché sous la photo" },
+{ type: "photo", src: "assets/images/photos/ma-photo.jpg",
+  alt: "Description de la photo pour les personnes qui ne la voient pas",
+  caption: "Légende affichée sous la photo" },
 ```
 
-- `type` vaut `"image"` ou `"video"`.
-- `alt` est **obligatoire** pour l'accessibilité.
-- Les chemins sont **relatifs** à `index.html` (jamais de `/` au début).
-- Un fichier absent ne casse rien : la vignette affiche un **emplacement
-  élégant** « Emplacement libre ».
+- **Retirer** : supprime la ligne. **Remplacer** : change `src` (et `alt`, `caption`).
+- **Vidéo** : `{ type: "video", src: "assets/video/x.mp4", poster: "assets/images/photos/x-poster.jpg", alt: "…", caption: "…" }`
+  (mp4 H.264/AAC ; `poster` est l'image d'aperçu).
+- Si un fichier est introuvable, un emplacement « Fichier introuvable — à remplacer » apparaît à sa place.
+  Si la liste est vide, trois emplacements « Emplacement pour une photo de Nissi » s'affichent. Aucune fausse image n'est jamais montrée.
 
-**Conseils performance** : format WebP/AVIF, largeur ≤ 1600 px, garde une
-version originale à part. Le chargement est déjà en `loading="lazy"`.
+## 3. Modifier la lettre et les messages
 
----
+Tout est dans `config/content.js` :
 
-## 5. Modifier la lettre et les messages
+- `letter.greeting`, `letter.paragraphs` (un élément = un paragraphe), `letter.signature`
+- `game.stars[].message` (les 5 messages) et leur position (`x`, `y` en % du ciel)
+- `finale.title` et `finale.message`
+- `invitation`, `birthday`, et tous les boutons.
 
-Tout est dans **`config/content.js`** :
+Les textes sont insérés comme du texte brut (pas de HTML). Garde les guillemets et les virgules.
+La lettre actuelle est un texte d'ambiance : relis-la et personnalise-la (aucun souvenir précis n'y a été inventé ; tu peux en ajouter de vrais).
 
-- `invitation`, `accueil` : textes des chapitres 1 et 2.
-- `lettre.paragraphes` / `lettre.signature` : la lettre (tableau de paragraphes).
-- `finale` : message final.
-- `jeu.etoiles` : les 5 messages des étoiles.
-- `musique` : réglages du lecteur.
-- `ui` : libellés d'accessibilité et progression.
+## 4. Ajouter ou changer la musique
 
-Les jetons `{prenom}` et `{surnom}` sont remplacés automatiquement.
-
-> **Règle importante** : ne mets dans ces textes que des informations réelles.
-> Le contenu livré est volontairement **neutre et non biographique** : aucune
-> date, anecdote, conversation ou souvenir inventé. Personnalise-le avec ce que
-> tu sais vraiment, ou laisse-le tel quel — il reste juste et sincère.
-
----
-
-## 6. Ajouter une musique autorisée
-
-1. Place une ou plusieurs pistes **libres de droits ou dont tu détiens les
-   droits** dans `assets/audio/` (par ex. `titre-01.mp3`, `titre-02.mp3`…).
-2. Déclare-les dans `config/content.js` → `musique.pistes`, puis règle le
-   `volume` et la `boucle` :
+Copie des `.mp3` dans `assets/audio/` puis édite `music.tracks` :
 
 ```js
-musique: {
-  pistes: [
-    { src: "assets/audio/titre-01.mp3", titre: "Titre 1" },
-    { src: "assets/audio/titre-02.mp3", titre: "Titre 2" },
-  ],
-  volume: 0.5,
-  boucle: true,
-},
+tracks: [
+  { title: "Nom du morceau", src: "assets/audio/mon-morceau.mp3" }
+]
 ```
 
-Les morceaux s'enchaînent automatiquement (en boucle). Si aucun fichier n'est
-présent, le lecteur affiche un **état neutre**, se désactive proprement et
-**le site reste parfaitement utilisable en silence**.
+La musique ne démarre jamais toute seule : seulement après un clic (bouton « Entrer avec la musique », lecteur ou mini-lecteur).
+Une piste manquante est ignorée ; sans aucune piste le site continue normalement.
+Pendant la lecture d'une vidéo dans la galerie, la musique se met en pause puis reprend.
+Utilise uniquement des morceaux dont tu as les droits ou libres d'utilisation.
 
-Ne dépose pas de musique protégée sans autorisation.
+## 5. Tests à effectuer (checklist)
 
----
+Voir `TESTS.md` pour ce qui a été exécuté. Avant de publier, refais à la main sur un vrai téléphone :
 
-## 7. Tester avant publication
+- [ ] Entrer, parcourir les 7 scènes, revenir au début.
+- [ ] Galerie : agrandir, naviguer (flèches / glissement), Échap, lire les 2 vidéos (avec le son).
+- [ ] Lettre : ouvrir, refermer, rouvrir.
+- [ ] Musique : lecture, pause, volume, muet, morceau suivant.
+- [ ] Jeu : trouver les 5 étoiles (au toucher), recommencer, débloquer la surprise.
+- [ ] Surprise : « Revivre la surprise », « Relire la lettre », « Recommencer ».
+- [ ] Rotation du téléphone, aucun défilement horizontal.
+- [ ] Réglage système « Réduire les animations » activé : tout reste lisible et utilisable.
 
-- Ouvre le site et déroule les six chapitres.
-- Vérifie la galerie (clic pour agrandir, flèches ←/→, `Échap` pour fermer).
-- Vérifie le mini-jeu à la **souris**, au **toucher** et au **clavier**
-  (`Tab` puis `Entrée`/`Espace`).
-- Ouvre la console du navigateur (F12) : aucune erreur ne doit apparaître.
-- Vérifie sur petit écran (≈ 360 px de large) l'absence de défilement horizontal.
-- Teste avec « réduire les animations » activé dans le système.
+## 6. Publier
 
-Voir `RAPPORT-TESTS.md` pour la liste exacte des vérifications déjà effectuées.
+**GitHub Pages**
+1. Crée un dépôt (privé ou public) et envoie tout le dossier.
+2. Settings → Pages → Source : branche `main`, dossier `/ (root)`.
+3. Le site est servi sous `https://<utilisateur>.github.io/<depot>/` (sous-dossier : les chemins sont relatifs, aucun réglage nécessaire).
 
----
+**Netlify**
+1. Sur app.netlify.com : « Add new site » → « Deploy manually » → glisse le dossier du projet.
+2. Ou connecte le dépôt (commande de build : aucune ; dossier de publication : `/`).
 
-## 8. Publier sur GitHub Pages
+## 7. Vérifier la version en ligne
 
-```bash
-git init
-git add .
-git commit -m "Barbichou's Secret Garden"
-git branch -M main
-git remote add origin https://github.com/<utilisateur>/<depot>.git
-git push -u origin main
-```
-Puis, sur GitHub : **Settings → Pages → Build and deployment → Source :
-Deploy from a branch**, branche `main`, dossier `/ (root)`, **Save**.
-Le site sera à l'adresse :
-`https://<utilisateur>.github.io/<depot>/`
+- Ouvre l'adresse sur téléphone ET ordinateur, en navigation privée (cache vide).
+- Vérifie que les photos, les 2 vidéos et les 4 musiques se chargent (sinon : un chemin ou une majuscule diffère, l'hébergeur distingue majuscules/minuscules).
+- Ouvre les outils de développement → Console : aucune erreur rouge.
+- Rafraîchis la page au milieu du parcours : tu retrouves ta scène (mémorisée dans l'onglet seulement).
 
-> Les chemins du projet sont **relatifs** : le site fonctionne aussi dans un
-> sous-répertoire (`/<depot>/`) comme c'est le cas sur GitHub Pages.
+## Confidentialité
 
----
+- Le site ne collecte rien et n'envoie rien. L'avancée (scène, étoiles trouvées) est gardée dans `sessionStorage` de l'onglet, puis oubliée à sa fermeture.
+- Une balise `noindex` demande aux moteurs de recherche de ne pas l'indexer.
+- **Attention :** les fichiers d'un site public (photos, vidéos, musiques, textes) sont accessibles à toute personne qui connaît ou devine l'adresse. Un lien « secret » n'est pas une protection. Il n'y a volontairement pas de mot de passe en JavaScript (il serait lisible par tous). Pour une vraie confidentialité, utilise un hébergement avec accès protégé, ou envoie le dossier directement à Nissi.
+- Ne publie pas de photos ou vidéos de personnes sans leur accord (la vidéo « Souvenir n° 2 » montre deux personnes).
 
-## 9. Publier sur Netlify
+## Ce qu'il reste à ajouter / valider par toi
 
-- Méthode simple : va sur <https://app.netlify.com/drop> et **glisse le dossier
-  du projet** dans la page. C'est en ligne immédiatement.
-- Ou connecte le dépôt Git : **Build command** = (vide),
-  **Publish directory** = `.` (racine).
-
-Aucune variable d'environnement n'est nécessaire.
-
----
-
-## 10. Vérifier les chemins après publication
-
-- Ouvre le site publié et vérifie que **la carte/photo s'affiche** (pas
-  d'icône d'image cassée).
-- Ouvre la console (F12) : les erreurs réseau 404 éventuelles indiqueront un
-  chemin à corriger. Les seuls 404 normaux sont ceux de `assets/audio/*` si tu
-  n'as pas ajouté de musique.
-- Sur GitHub Pages, le site vit dans un sous-dossier : ne mets **jamais** de
-  chemin commençant par `/` dans `config/content.js`.
-
----
-
-## 11. Accessibilité & confidentialité
-
-- Navigation clavier complète, focus visible, lien d'évitement, `aria-live`,
-  respect de `prefers-reduced-motion`, contrastes soignés.
-- **Aucune donnée personnelle collectée**, aucun cookie de suivi, aucune
-  publicité, aucun `eval()`, aucun script externe.
-- ⚠️ Le site est **public** : toute personne ayant le lien peut voir son
-  contenu (photos comprises). Le lien n'est **pas** un contrôle d'accès.
-  Ne publie des photos qu'avec l'accord de la personne concernée. Aucun
-  « mot de passe » côté client n'est proposé, car ce serait trompeur.
-
----
-
-## 12. Liste des fichiers personnels encore à ajouter
-
-À faire avant l'envoi du cadeau :
-
-- [ ] **Photos** dans `assets/images/photos/` + entrées dans `galerie.items`
-      (il y a déjà la carte et les 2 vidéos fournies).
-- [ ] **Légendes** adaptées dans `config/content.js`.
-- [ ] **Lettre** relue/personnalisée (`lettre.paragraphes`, `lettre.signature`).
-- [ ] **Message final** relu (`finale.texte`).
-- [ ] **Messages des étoiles** (`jeu.etoiles`) éventuellement adaptés.
-- [x] **Musique** dans `assets/audio/` (4 titres fournis, enchaînés en boucle).
-- [ ] **Image de partage** (`og:image`) dans `index.html` (optionnel).
-
-Bonne surprise à Barbichou. ✨
+- [ ] Autres photos de Nissi (actuellement : la carte d'anniversaire + 2 vidéos).
+- [ ] Légendes et descriptions (`alt`) des vidéos (actuellement génériques : « Souvenir n° 1/2 »).
+- [ ] Noms réels des 4 morceaux (actuellement « Titre 1 » à « Titre 4 ») et confirmation des droits.
+- [ ] Relecture et personnalisation de la lettre et des 5 messages d'étoiles.
+- [ ] Accord des personnes visibles dans les vidéos avant toute mise en ligne.
+- [ ] Choix de l'hébergement (et décision sur la confidentialité, voir plus haut).

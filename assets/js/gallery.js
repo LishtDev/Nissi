@@ -1,200 +1,217 @@
 /* ============================================================
-   gallery.js — Galerie des souvenirs + visionneuse accessible
-   - Construit la grille à partir de config/content.js
-   - Un média absent devient un emplacement élégant (pas d'image cassée)
-   - Visionneuse en <dialog> natif : Échap ferme, flèches naviguent
-   - Le focus est géré par le dialogue natif ; on le complète.
+   gallery.js — grille de souvenirs + visionneuse accessible
+   (<dialog> modal : focus piégé, Échap natif, focus restitué)
    ============================================================ */
-(function (global) {
-  "use strict";
+(function () {
+  'use strict';
 
-  var BSG = (global.BSG = global.BSG || {});
+  var BG = (window.BG = window.BG || {});
+  var cfg = (window.BARBICHOU_CONTENT || {}).gallery || { items: [] };
+  var $ = function (id) { return document.getElementById(id); };
 
-  // Vide un élément sans jamais injecter de HTML.
-  function vider(el) {
-    while (el.firstChild) el.removeChild(el.firstChild);
+  var items = [];          // { data, tile, broken }
+  var current = 0;
+  var opener = null;
+  var dlg, mediaBox, caption, count, btnPrev, btnNext, btnClose;
+  var touch = null;
+
+  var svgPlay = function () {
+    var ns = 'http://www.w3.org/2000/svg';
+    var s = document.createElementNS(ns, 'svg');
+    s.setAttribute('viewBox', '0 0 24 24'); s.setAttribute('aria-hidden', 'true');
+    var p = document.createElementNS(ns, 'path');
+    p.setAttribute('d', 'M8 5l11 7-11 7z'); p.setAttribute('fill', 'currentColor');
+    s.appendChild(p);
+    return s;
+  };
+
+  function placeholder(label) {
+    var d = document.createElement('div');
+    d.className = 'tile tile--placeholder';
+    d.setAttribute('role', 'img');
+    d.setAttribute('aria-label', label);
+    d.textContent = label;
+    return d;
   }
 
-  function creerGalerie(config, ui) {
-    var grille = document.getElementById("galerie-grille");
-    var dialog = document.getElementById("visionneuse");
-    var media = document.getElementById("visionneuse-media");
-    var legende = document.getElementById("visionneuse-legende");
-    var compteur = document.getElementById("visionneuse-compteur");
-    var fermer = document.getElementById("visionneuse-fermer");
-    var prev = document.getElementById("visionneuse-prev");
-    var next = document.getElementById("visionneuse-next");
+  function validItems() { return items.filter(function (it) { return !it.broken; }); }
 
-    if (!grille || !dialog) return;
+  function markBroken(it) {
+    it.broken = true;
+    var ph = placeholder(cfg.brokenLabel || 'Fichier introuvable');
+    var li = it.tile.parentNode;
+    li.replaceChild(ph, it.tile);
+    it.tile = ph;
+  }
 
-    var items = (config && config.items) || [];
-    var indexCourant = 0;
+  function buildTile(it, li) {
+    var d = it.data;
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'tile';
+    var label = (d.caption || 'Souvenir') + (d.type === 'video' ? ' — vidéo' : '') + ' : agrandir';
+    btn.setAttribute('aria-label', label);
 
-    // --- Construction d'une vignette -------------------------
-    function construireVignette(item) {
-      var li = document.createElement("li");
+    var img = document.createElement('img');
+    img.alt = '';                                   // le libellé du bouton décrit déjà la vignette
+    img.loading = 'lazy';
+    img.decoding = 'async';
+    img.src = d.type === 'video' ? (d.poster || '') : d.src;
+    img.addEventListener('error', function () { markBroken(it); });
+    btn.appendChild(img);
 
-      var btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "vignette";
-      btn.setAttribute("aria-label", (item.legende || "") + " — agrandir");
-
-      var contenu;
-      if (item.type === "video") {
-        contenu = document.createElement("video");
-        contenu.className = "vignette__media";
-        contenu.muted = true;
-        contenu.playsInline = true;
-        contenu.preload = "none";
-        if (item.poster) contenu.poster = item.poster;
-        // Certains navigateurs affichent la 1re image si on charge un peu.
-        contenu.addEventListener("loadeddata", function () {
-          try { contenu.currentTime = 0.1; } catch (e) { /* ignore */ }
-        });
-      } else {
-        contenu = document.createElement("img");
-        contenu.className = "vignette__media";
-        contenu.loading = "lazy";
-        contenu.decoding = "async";
-        contenu.alt = item.alt || "";
-      }
-      contenu.src = item.src;
-
-      var badge = document.createElement("span");
-      badge.className = "vignette__badge";
-      badge.textContent = item.type === "video" ? "Vidéo" : "Photo";
-
-      var cap = document.createElement("span");
-      cap.className = "vignette__legende";
-      cap.textContent = item.legende || "";
-
-      // Gestion d'erreur : le média n'a pas pu être chargé -> emplacement.
-      function remplacement() {
-        vider(li); // vide le noeud que l'on contrôle nous-mêmes
-        var vide = document.createElement("div");
-        vide.className = "vignette__vide-texte";
-        var strong = document.createElement("strong");
-        strong.textContent = "Emplacement libre";
-        var p = document.createElement("span");
-        p.textContent = (item.legende || "Souvenir à ajouter") +
-          " — dépose un fichier nommé « " +
-          String(item.src).split("/").pop() + " ».";
-        vide.appendChild(strong);
-        vide.appendChild(p);
-        li.appendChild(vide);
-        btn.classList.add("vignette--vide");
-        btn.disabled = true;
-        btn.removeAttribute("aria-label");
-      }
-
-      contenu.addEventListener("error", remplacement);
-
-      btn.appendChild(contenu);
+    if (d.type === 'video') {
+      var badge = document.createElement('span');
+      badge.className = 'tile__badge';
+      badge.appendChild(svgPlay());
+      badge.appendChild(document.createTextNode('Vidéo'));
       btn.appendChild(badge);
+    }
+    if (d.caption) {
+      var cap = document.createElement('span');
+      cap.className = 'tile__cap';
+      cap.textContent = d.caption;
       btn.appendChild(cap);
-      btn.addEventListener("click", function () {
-        ouvrir(item);
-      });
-
-      li.appendChild(btn);
-      grille.appendChild(li);
     }
-
-    items.forEach(construireVignette);
-
-    // --- Ouverture de la visionneuse -------------------------
-    function ouvrir(item) {
-      // On recalcule l'index dans la liste des items affichables.
-      var idx = items.indexOf(item);
-      indexCourant = idx >= 0 ? idx : 0;
-      rendre();
-      if (typeof dialog.showModal === "function") {
-        dialog.showModal();
-      } else {
-        dialog.setAttribute("open", "");
-      }
-    }
-
-    function rendre() {
-      var item = items[indexCourant];
-      if (!item) return;
-
-      // Vide le média précédent (arrête toute lecture vidéo en cours).
-      vider(media);
-
-      var el;
-      if (item.type === "video") {
-        el = document.createElement("video");
-        el.controls = true;
-        el.playsInline = true;
-        el.preload = "metadata";
-        el.src = item.src;
-        if (item.poster) el.poster = item.poster;
-        el.setAttribute("aria-label", item.alt || item.legende || "Vidéo souvenir");
-      } else {
-        el = document.createElement("img");
-        el.src = item.src;
-        el.alt = item.alt || item.legende || "";
-      }
-      media.appendChild(el);
-
-      legende.textContent = item.legende || "";
-      if (compteur) {
-        compteur.textContent = (indexCourant + 1) + " / " + items.length;
-      }
-
-      var multiple = items.length > 1;
-      if (prev) prev.disabled = !multiple;
-      if (next) next.disabled = !multiple;
-    }
-
-    function suivant() {
-      indexCourant = (indexCourant + 1) % items.length;
-      rendre();
-    }
-    function precedent() {
-      indexCourant = (indexCourant - 1 + items.length) % items.length;
-      rendre();
-    }
-
-    // --- Commandes -------------------------------------------
-    if (fermer) {
-      fermer.addEventListener("click", function () { dialog.close(); });
-    }
-    if (prev) {
-      prev.textContent = (ui && ui.imagePrecedente) || "";
-      prev.addEventListener("click", precedent);
-    }
-    if (next) {
-      next.textContent = (ui && ui.imageSuivante) || "";
-      next.addEventListener("click", suivant);
-    }
-
-    // Clic sur le fond (hors contenu) ferme la visionneuse.
-    dialog.addEventListener("click", function (e) {
-      if (e.target === dialog) dialog.close();
-    });
-
-    // Navigation clavier (Échap est géré nativement par <dialog>).
-    dialog.addEventListener("keydown", function (e) {
-      if (e.key === "ArrowRight") { e.preventDefault(); suivant(); }
-      if (e.key === "ArrowLeft") { e.preventDefault(); precedent(); }
-    });
-
-    // À la fermeture, on purge le média (stoppe la vidéo) et on
-    // rend le focus au déclencheur pour ne pas "perdre" l'utilisateur.
-    var declencheur = null;
-    dialog.addEventListener("close", function () {
-      vider(media);
-      if (declencheur && typeof declencheur.focus === "function") {
-        declencheur.focus();
-      }
-    });
-    grille.addEventListener("click", function (e) {
-      var b = e.target.closest ? e.target.closest(".vignette") : null;
-      if (b) declencheur = b;
-    });
+    btn.addEventListener('click', function () { open(it, btn); });
+    it.tile = btn;
+    li.appendChild(btn);
   }
 
-  BSG.galerie = { creer: creerGalerie };
-})(window);
+  /* ---------- Visionneuse ---------- */
+  function stopVideo() {
+    var v = mediaBox.querySelector('video');
+    if (v) { v.pause(); }
+  }
+
+  function render() {
+    var list = validItems();
+    var it = list[current];
+    if (!it) return;
+    stopVideo();
+    var d = it.data;
+    var node;
+    if (d.type === 'video') {
+      node = document.createElement('video');
+      node.controls = true;
+      node.playsInline = true;
+      node.preload = 'metadata';
+      if (d.poster) node.poster = d.poster;
+      node.src = d.src;
+      node.setAttribute('aria-label', d.alt || d.caption || 'Vidéo souvenir');
+      node.addEventListener('play', function () { if (BG.Music) BG.Music.suspendForVideo(); });
+      node.addEventListener('pause', function () { if (BG.Music) BG.Music.resumeAfterVideo(); });
+      node.addEventListener('ended', function () { if (BG.Music) BG.Music.resumeAfterVideo(); });
+      node.addEventListener('error', function () {
+        var msg = document.createElement('p');
+        msg.textContent = cfg.brokenLabel || 'Fichier introuvable';
+        mediaBox.replaceChildren(msg);
+      });
+    } else {
+      node = document.createElement('img');
+      node.src = d.src;
+      node.alt = d.alt || d.caption || '';
+      node.addEventListener('error', function () {
+        var msg = document.createElement('p');
+        msg.textContent = cfg.brokenLabel || 'Fichier introuvable';
+        mediaBox.replaceChildren(msg);
+      });
+    }
+    mediaBox.replaceChildren(node);
+    caption.textContent = d.caption || '';
+    count.textContent = (current + 1) + ' / ' + list.length;
+    var multi = list.length > 1;
+    btnPrev.hidden = btnNext.hidden = !multi;
+
+    // précharge la voisine
+    if (multi) {
+      var n = list[(current + 1) % list.length].data;
+      if (n.type !== 'video') { var im = new Image(); im.src = n.src; }
+    }
+  }
+
+  function go(delta) {
+    var len = validItems().length;
+    if (len < 2) return;
+    current = (current + delta + len) % len;
+    render();
+  }
+
+  function open(it, openerEl) {
+    var list = validItems();
+    current = Math.max(0, list.indexOf(it));
+    opener = openerEl || document.activeElement;
+    render();
+    if (typeof dlg.showModal === 'function') dlg.showModal(); else dlg.setAttribute('open', '');
+    btnClose.focus();
+  }
+
+  function onClose() {
+    stopVideo();
+    mediaBox.replaceChildren();
+    if (opener && document.contains(opener) && typeof opener.focus === 'function') opener.focus();
+    opener = null;
+  }
+
+  function close() {
+    if (dlg.open) { if (typeof dlg.close === 'function') dlg.close(); else dlg.removeAttribute('open'); }
+  }
+
+  function init() {
+    var grid = $('gallery');
+    dlg = $('lightbox'); mediaBox = $('lb-media'); caption = $('lb-caption'); count = $('lb-count');
+    btnPrev = $('lb-prev'); btnNext = $('lb-next'); btnClose = $('lb-close');
+
+    var data = (cfg.items || []).filter(function (d) { return d && d.src; });
+    grid.replaceChildren();
+
+    if (data.length === 0) {
+      // Aucune photo fournie : emplacements identifiés, jamais de fausses images.
+      for (var k = 0; k < 3; k++) {
+        var li0 = document.createElement('li');
+        li0.appendChild(placeholder(cfg.emptyLabel || 'Emplacement pour une photo'));
+        grid.appendChild(li0);
+      }
+    } else {
+      data.forEach(function (d) {
+        var li = document.createElement('li');
+        var it = { data: d, tile: null, broken: false };
+        items.push(it);
+        grid.appendChild(li);
+        buildTile(it, li);
+      });
+    }
+
+    btnPrev.addEventListener('click', function () { go(-1); });
+    btnNext.addEventListener('click', function () { go(1); });
+    btnClose.addEventListener('click', close);
+    dlg.addEventListener('close', onClose);
+    dlg.addEventListener('cancel', function () { /* Échap : fermeture native, onClose restitue le focus */ });
+
+    dlg.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowLeft') { go(-1); e.preventDefault(); }
+      else if (e.key === 'ArrowRight') { go(1); e.preventDefault(); }
+    });
+
+    // clic sur le fond (hors figure et hors boutons) : fermer
+    dlg.addEventListener('click', function (e) {
+      if (e.target === dlg || e.target.classList.contains('lightbox__stage')) close();
+    });
+
+    // balayage tactile
+    var fig = $('lb-figure');
+    fig.addEventListener('pointerdown', function (e) {
+      if (e.target.closest('video')) { touch = null; return; }
+      touch = { x: e.clientX, y: e.clientY };
+    });
+    fig.addEventListener('pointerup', function (e) {
+      if (!touch) return;
+      var dx = e.clientX - touch.x, dy = e.clientY - touch.y;
+      touch = null;
+      if (Math.abs(dx) > 50 && Math.abs(dy) < 60) go(dx < 0 ? 1 : -1);
+    });
+    fig.addEventListener('pointercancel', function () { touch = null; });
+  }
+
+  BG.Gallery = { init: init, close: close };
+})();

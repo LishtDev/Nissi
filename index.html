@@ -1,160 +1,221 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Barbichou's Secret Garden — Joyeux anniversaire Nissi</title>
-  <meta name="description" content="Un jardin secret sous un ciel étoilé, préparé avec affection pour l'anniversaire de Nissi, alias Barbichou.">
-  <meta name="color-scheme" content="dark">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; media-src 'self'; font-src 'self'; connect-src 'self'; base-uri 'none'; form-action 'none'">
+  <meta name="robots" content="noindex, nofollow">
   <meta name="theme-color" content="#09090F">
-
-  <!-- Aperçu de partage (optionnel ; remplace l'image par la tienne) -->
-  <meta property="og:title" content="Barbichou's Secret Garden">
-  <meta property="og:description" content="Quelqu'un a préparé quelque chose pour toi…">
-  <meta property="og:type" content="website">
-
-  <link rel="icon" href="assets/images/favicon.svg" type="image/svg+xml">
+  <meta name="description" content="Un petit jardin secret numérique, offert pour un anniversaire.">
+  <title>Barbichou's Secret Garden</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ctext y='50' font-size='48'%3E%E2%9C%A6%3C/text%3E%3C/svg%3E">
   <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
-  <!-- Décor de fond : dégradé nocturne + ciel étoilé animé (canvas) -->
-  <div class="ciel" aria-hidden="true">
-    <div class="brume"></div>
-    <div class="lune"></div>
-    <canvas id="ciel-canvas"></canvas>
-  </div>
+  <a class="skip-link" href="#stage">Aller au contenu</a>
 
-  <!-- Lien d'évitement pour la navigation clavier -->
-  <a class="evitement" href="#app">Aller au contenu principal</a>
+  <canvas id="sky" aria-hidden="true"></canvas>
+  <div class="vignette" aria-hidden="true"></div>
+  <div class="bloom" id="bloom" aria-hidden="true"></div>
 
-  <header class="entete">
-    <p class="marque">Barbichou&rsquo;s <span>Secret Garden</span></p>
-    <nav class="progression" aria-label="Progression de l'histoire">
-      <ol id="progression-liste" class="progression__liste"></ol>
-    </nav>
+  <!-- Barre de navigation (visible après l'entrée) -->
+  <header class="topbar" id="topbar" hidden>
+    <button class="icon-btn" id="btn-back" type="button" aria-label="Scène précédente">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <nav class="dots" id="dots" aria-label="Progression"></nav>
+    <button class="icon-btn" id="btn-home" type="button" aria-label="Retour au début">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11l8-7 8 7M6 10v10h12V10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
   </header>
 
-  <main id="app" class="app">
+  <noscript>
+    <div class="noscript">Ce petit jardin secret a besoin de JavaScript pour s'ouvrir. Active-le puis recharge la page.</div>
+  </noscript>
 
-    <!-- ══ CHAPITRE 1 — L'INVITATION ══ -->
-    <section class="chapitre chapitre--invitation" data-chapitre="0" aria-labelledby="titre-invitation">
-      <div class="carte-verre chapitre__inner">
-        <p class="eyebrow" data-content="invitation.eyebrow"></p>
-        <h1 id="titre-invitation" class="titre titre--xl" data-content="invitation.titre"></h1>
-        <p class="texte texte--lead" data-content="invitation.texte"></p>
-        <button type="button" class="btn btn--or" data-action="entrer" data-content="invitation.bouton"></button>
-      </div>
-    </section>
+  <main id="stage" class="stage">
 
-    <!-- ══ CHAPITRE 2 — LE MESSAGE D'ACCUEIL ══ -->
-    <section class="chapitre" data-chapitre="1" aria-labelledby="titre-accueil" hidden>
-      <div class="chapitre__inner">
-        <p class="eyebrow" data-content="accueil.eyebrow"></p>
-        <p class="texte texte--lead" data-content="accueil.texte"></p>
-        <h2 id="titre-accueil" class="titre titre--lg contraste" data-content="accueil.titre"></h2>
-        <p class="titre titre--md or" data-content="accueil.sousTitre"></p>
-        <button type="button" class="btn" data-action="suivant" data-content="accueil.bouton"></button>
-      </div>
-    </section>
-
-    <!-- ══ CHAPITRE 3 — LA GALERIE DES SOUVENIRS ══ -->
-    <section class="chapitre" data-chapitre="2" aria-labelledby="titre-galerie" hidden>
-      <div class="chapitre__inner chapitre__inner--large">
-        <p class="eyebrow" data-content="galerie.eyebrow"></p>
-        <h2 id="titre-galerie" class="titre titre--lg" data-content="galerie.titre"></h2>
-        <p class="texte" data-content="galerie.intro"></p>
-        <ul id="galerie-grille" class="galerie" role="list"></ul>
-        <button type="button" class="btn" data-action="suivant" data-content="galerie.bouton"></button>
-      </div>
-    </section>
-
-    <!-- ══ CHAPITRE 4 — LA LETTRE POUR BARBICHOU ══ -->
-    <section class="chapitre" data-chapitre="3" aria-labelledby="titre-lettre" hidden>
-      <div class="chapitre__inner">
-        <p class="eyebrow" data-content="lettre.eyebrow"></p>
-        <h2 id="titre-lettre" class="titre titre--lg" data-content="lettre.titre"></h2>
-
-        <div class="enveloppe" id="enveloppe">
-          <p class="enveloppe__invite" data-content="lettre.sousTitre"></p>
-          <button type="button" class="btn btn--or" data-action="ouvrir-lettre" data-content="lettre.boutonOuvrir"></button>
+    <!-- SCÈNE 1 — L'invitation secrète -->
+    <section class="scene scene--center" id="scene-1" data-scene="1" aria-labelledby="s1-title">
+      <div class="moon" aria-hidden="true"></div>
+      <div class="scene__inner">
+        <p class="kicker" id="s1-kicker"></p>
+        <h1 class="display" id="s1-title" tabindex="-1"></h1>
+        <div class="actions">
+          <button class="btn btn--primary" id="btn-enter" type="button"></button>
+          <button class="btn btn--ghost" id="btn-enter-music" type="button"></button>
         </div>
-
-        <article class="lettre-papier" id="lettre-papier" hidden>
-          <div id="lettre-corps" class="lettre-corps"></div>
-          <p id="lettre-signature" class="lettre-signature"></p>
-        </article>
-
-        <button type="button" class="btn" data-action="suivant" data-content="lettre.bouton" hidden id="lettre-suivant"></button>
+        <p class="note" id="s1-note"></p>
       </div>
     </section>
 
-    <!-- ══ CHAPITRE 5 — LES ÉTOILES DE BARBICHOU (mini-jeu) ══ -->
-    <section class="chapitre" data-chapitre="4" aria-labelledby="titre-jeu" hidden>
-      <div class="chapitre__inner chapitre__inner--large">
-        <p class="eyebrow" data-content="jeu.eyebrow"></p>
-        <h2 id="titre-jeu" class="titre titre--lg" data-content="jeu.titre"></h2>
-        <p class="texte" data-content="jeu.intro"></p>
+    <!-- SCÈNE 2 — Joyeux anniversaire -->
+    <section class="scene scene--center" id="scene-2" data-scene="2" aria-labelledby="s2-title">
+      <div class="scene__inner">
+        <p class="kicker" id="s2-pre"></p>
+        <h2 class="display display--name" id="s2-title" tabindex="-1"><span id="s2-name"></span></h2>
+        <p class="nickname" id="s2-nick"></p>
+        <p class="lead" id="s2-text"></p>
+        <div class="actions"><button class="btn btn--primary" id="btn-s2-next" type="button"></button></div>
+      </div>
+    </section>
 
-        <div class="jeu">
-          <p class="jeu__consigne" data-content="jeu.consigne"></p>
-          <div id="jeu-ciel" class="jeu__ciel" role="group" aria-label="Ciel étoilé interactif"></div>
-          <p id="jeu-progression" class="jeu__progression" role="status" aria-live="polite"></p>
-          <p id="jeu-message" class="jeu__message" role="status" aria-live="polite"></p>
-          <div class="jeu__actions">
-            <button type="button" class="btn btn--fantome" data-action="rejouer-jeu" data-content="jeu.boutonRejouer"></button>
-            <button type="button" class="btn" data-action="suivant" data-content="jeu.bouton" disabled id="jeu-suivant"></button>
+    <!-- SCÈNE 3 — Galerie -->
+    <section class="scene" id="scene-3" data-scene="3" aria-labelledby="s3-title">
+      <div class="scene__inner scene__inner--wide">
+        <h2 class="title" id="s3-title" tabindex="-1"></h2>
+        <p class="lead lead--small" id="s3-intro"></p>
+        <ul class="gallery" id="gallery"></ul>
+        <div class="actions"><button class="btn btn--primary" id="btn-s3-next" type="button"></button></div>
+      </div>
+    </section>
+
+    <!-- SCÈNE 4 — Lettre -->
+    <section class="scene" id="scene-4" data-scene="4" aria-labelledby="s4-title">
+      <div class="scene__inner">
+        <h2 class="title" id="s4-title" tabindex="-1"></h2>
+        <div class="letter-zone" id="letter-zone">
+          <button class="envelope" id="envelope" type="button" aria-expanded="false" aria-controls="letter">
+            <span class="envelope__back"></span>
+            <span class="envelope__flap"></span>
+            <span class="envelope__front"></span>
+            <span class="envelope__seal" aria-hidden="true">B</span>
+          </button>
+          <p class="note" id="s4-hint"></p>
+          <article class="letter" id="letter" hidden tabindex="-1" aria-label="Lettre pour Barbichou">
+            <p class="letter__greeting" id="letter-greeting"></p>
+            <div id="letter-body"></div>
+            <p class="letter__sign" id="letter-sign"></p>
+          </article>
+          <button class="btn btn--ghost" id="btn-close-letter" type="button" hidden></button>
+        </div>
+        <div class="actions"><button class="btn btn--primary" id="btn-s4-next" type="button"></button></div>
+      </div>
+    </section>
+
+    <!-- SCÈNE 5 — Musique -->
+    <section class="scene scene--center" id="scene-5" data-scene="5" aria-labelledby="s5-title">
+      <div class="scene__inner">
+        <h2 class="title" id="s5-title" tabindex="-1"></h2>
+        <p class="lead lead--small" id="s5-intro"></p>
+
+        <div class="player" id="player" role="group" aria-label="Lecteur de musique">
+          <div class="player__top">
+            <div class="eq" id="eq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+            <div class="player__meta">
+              <p class="player__title" id="player-title">—</p>
+              <p class="player__state" id="player-state" role="status" aria-live="polite">En pause</p>
+            </div>
           </div>
+
+          <div class="player__seek">
+            <span class="time" id="time-cur">0:00</span>
+            <input type="range" id="seek" min="0" max="100" value="0" step="1" aria-label="Position dans le morceau">
+            <span class="time" id="time-dur">0:00</span>
+          </div>
+
+          <div class="player__controls">
+            <button class="icon-btn icon-btn--lg" id="p-prev" type="button" aria-label="Morceau précédent">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5v14M19 5l-9 7 9 7z" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></svg>
+            </button>
+            <button class="icon-btn icon-btn--xl" id="p-play" type="button" aria-label="Lire la musique" aria-pressed="false">
+              <svg class="ico-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5l11 7-11 7z" fill="currentColor"/></svg>
+              <svg class="ico-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z" fill="currentColor"/></svg>
+            </button>
+            <button class="icon-btn icon-btn--lg" id="p-next" type="button" aria-label="Morceau suivant">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 5v14M5 5l9 7-9 7z" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></svg>
+            </button>
+          </div>
+
+          <div class="player__volume">
+            <button class="icon-btn" id="p-mute" type="button" aria-label="Couper le son" aria-pressed="false">
+              <svg class="ico-vol" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9z" fill="currentColor"/><path d="M16 8.5a5 5 0 010 7M18.5 6a8.5 8.5 0 010 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+              <svg class="ico-mute" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9z" fill="currentColor"/><path d="M17 9l5 6M22 9l-5 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            </button>
+            <input type="range" id="p-volume" min="0" max="100" value="60" step="1" aria-label="Volume">
+          </div>
+
+          <p class="player__error" id="player-error" role="alert" hidden></p>
+        </div>
+
+        <div class="actions"><button class="btn btn--primary" id="btn-s5-next" type="button"></button></div>
+      </div>
+    </section>
+
+    <!-- SCÈNE 6 — Mini-jeu -->
+    <section class="scene" id="scene-6" data-scene="6" aria-labelledby="s6-title">
+      <div class="scene__inner scene__inner--wide">
+        <h2 class="title" id="s6-title" tabindex="-1"></h2>
+        <p class="lead lead--small" id="s6-intro"></p>
+
+        <div class="progress" aria-hidden="false">
+          <ol class="pips" id="pips" aria-label="Étoiles découvertes"></ol>
+          <p class="progress__text" id="progress-text" role="status" aria-live="polite"></p>
+        </div>
+
+        <div class="field" id="field">
+          <svg class="constellation" id="constellation" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"></svg>
+        </div>
+
+        <p class="star-message" id="star-message" role="status" aria-live="polite"></p>
+
+        <div class="actions">
+          <button class="btn btn--ghost" id="btn-hint" type="button"></button>
+          <button class="btn btn--ghost" id="btn-reset" type="button"></button>
+        </div>
+        <div class="unlock" id="unlock" hidden>
+          <p class="lead lead--small" id="unlock-text"></p>
+          <button class="btn btn--primary btn--glow" id="btn-unlock" type="button"></button>
         </div>
       </div>
     </section>
 
-    <!-- ══ CHAPITRE 6 — LA SURPRISE FINALE ══ -->
-    <section class="chapitre chapitre--finale" data-chapitre="5" aria-labelledby="titre-finale" hidden>
-      <div class="chapitre__inner">
-        <p class="eyebrow" data-content="finale.eyebrow"></p>
-        <h2 id="titre-finale" class="titre titre--xl" data-content="finale.titre"></h2>
-        <div id="finale-texte" class="finale-texte"></div>
-        <p class="titre titre--md or" data-content="finale.titreFinal"></p>
-        <button type="button" class="btn btn--or" data-action="revoir" data-content="finale.boutonRevoir"></button>
+    <!-- SCÈNE 7 — Surprise finale -->
+    <section class="scene scene--center scene--finale" id="scene-7" data-scene="7" aria-labelledby="s7-title">
+      <div class="sparks" id="sparks" aria-hidden="true"></div>
+      <div class="scene__inner">
+        <h2 class="display display--final" id="s7-title" tabindex="-1"></h2>
+        <p class="final-message" id="final-message"></p>
+        <div class="actions actions--final" id="final-actions" hidden>
+          <button class="btn btn--primary" id="btn-replay" type="button"></button>
+          <button class="btn btn--ghost" id="btn-reread" type="button"></button>
+          <button class="btn btn--ghost" id="btn-restart" type="button"></button>
+        </div>
       </div>
     </section>
   </main>
 
-  <!-- Lecteur musical discret, disponible tout au long de l'expérience -->
-  <div id="lecteur" class="lecteur" hidden aria-hidden="true">
-    <button type="button" id="lecteur-toggle" class="lecteur__btn" aria-pressed="false">
-      <span class="lecteur__icone" aria-hidden="true"></span>
-      <span class="lecteur__label" id="lecteur-etat"></span>
+  <!-- Mini lecteur flottant -->
+  <div class="dock" id="dock" hidden>
+    <button class="dock__btn" id="dock-play" type="button" aria-label="Lire la musique" aria-pressed="false">
+      <span class="eq eq--mini" aria-hidden="true"><i></i><i></i><i></i></span>
+      <svg class="ico-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5l11 7-11 7z" fill="currentColor"/></svg>
+      <svg class="ico-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z" fill="currentColor"/></svg>
     </button>
-    <div class="lecteur__details">
-      <span class="lecteur__barres" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
-      <label class="lecteur__volume">
-        <span class="sr-only">Volume</span>
-        <input type="range" id="lecteur-volume" min="0" max="1" step="0.01" value="0.5" aria-label="Volume de la musique">
-      </label>
-      <button type="button" id="lecteur-muet" class="lecteur__muet" aria-pressed="false"></button>
-    </div>
-    <audio id="lecteur-audio" preload="none"></audio>
   </div>
 
-  <!-- Visionneuse d'images (dialogue natif : focus géré par le navigateur) -->
-  <dialog id="visionneuse" class="visionneuse" aria-label="Visionneuse d'images">
-    <div class="visionneuse__contenu">
-      <button type="button" class="visionneuse__fermer" id="visionneuse-fermer" aria-label="Fermer la visionneuse">&times;</button>
-      <div class="visionneuse__media" id="visionneuse-media"></div>
-      <p class="visionneuse__legende" id="visionneuse-legende"></p>
-      <div class="visionneuse__nav">
-        <button type="button" id="visionneuse-prev" class="btn btn--fantome btn--petit"></button>
-        <span id="visionneuse-compteur" class="visionneuse__compteur" aria-hidden="true"></span>
-        <button type="button" id="visionneuse-next" class="btn btn--fantome btn--petit"></button>
-      </div>
+  <!-- Visionneuse de la galerie -->
+  <dialog class="lightbox" id="lightbox" aria-label="Visionneuse de souvenirs">
+    <div class="lightbox__bar">
+      <p class="lightbox__count" id="lb-count" aria-live="polite"></p>
+      <button class="icon-btn" id="lb-close" type="button" aria-label="Fermer la visionneuse">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <div class="lightbox__stage">
+      <button class="icon-btn icon-btn--lg lightbox__nav lightbox__nav--prev" id="lb-prev" type="button" aria-label="Souvenir précédent">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <figure class="lightbox__figure" id="lb-figure">
+        <div class="lightbox__media" id="lb-media"></div>
+        <figcaption id="lb-caption"></figcaption>
+      </figure>
+      <button class="icon-btn icon-btn--lg lightbox__nav lightbox__nav--next" id="lb-next" type="button" aria-label="Souvenir suivant">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
     </div>
   </dialog>
 
-  <!-- Région d'annonces pour les lecteurs d'écran -->
-  <p id="annonces" class="sr-only" role="status" aria-live="polite"></p>
-
-  <!-- Scripts classiques (pas de modules) : le site fonctionne même ouvert en local -->
   <script src="config/content.js"></script>
   <script src="assets/js/music.js"></script>
   <script src="assets/js/gallery.js"></script>

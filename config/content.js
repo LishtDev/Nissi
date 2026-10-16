@@ -1,183 +1,151 @@
 /*
- * Barbichou's Secret Garden — Fichier de contenu central
- * ------------------------------------------------------------------
- * C'est LE fichier à modifier pour personnaliser le site.
- * Aucun autre fichier n'a besoin d'être touché pour changer les textes,
- * les légendes, les messages du mini-jeu ou les paramètres de la musique.
+ * ============================================================
+ *  BARBICHOU'S SECRET GARDEN — fichier de contenu
+ * ============================================================
+ *  Tout ce qui est modifiable (textes, lettre, légendes, photos,
+ *  musiques, messages du jeu) se trouve ici.
  *
- * IMPORTANT : ne note ici que des informations réelles et vérifiées.
- * Ne crée pas de faux souvenirs, de fausses dates ni de fausses anecdotes.
+ *  - Les textes sont insérés comme du TEXTE (jamais en HTML).
+ *  - Dans la lettre, une ligne vide n'est pas nécessaire :
+ *    chaque élément de `paragraphs` est un paragraphe.
+ *  - Garde les guillemets "..." et les virgules entre éléments.
+ * ============================================================
  */
-window.CONTENT = {
-  /* ── Identité ─────────────────────────────────────────────── */
-  profile: {
-    prenom: "Nissi",
-    surnom: "Barbichou",
-    // Année de naissance optionnelle (laisser vide pour ne rien afficher) :
-    annee: ""
-  },
+window.BARBICHOU_CONTENT = {
+  recipient: { name: "Nissi", nickname: "Barbichou" },
 
-  /* ── Chapitre 1 : l'invitation ────────────────────────────── */
+  /* ---------- SCÈNE 1 — L'invitation secrète ---------- */
   invitation: {
-    eyebrow: "Une invitation nocturne",
-    titre: "Quelqu'un a préparé quelque chose pour toi…",
-    // Le prénom et le surnom sont insérés automatiquement.
-    texte:
-      "Ce jardin secret n'ouvre que pour une personne. Il paraît que c'est toi.",
-    bouton: "Entrer dans mon univers",
+    kicker: "Une invitation",
+    title: "Une petite surprise attend une personne très spéciale…",
+    button: "Entrer dans mon univers",
+    buttonWithMusic: "Entrer avec la musique",
+    note: "La musique est facultative : elle ne démarre jamais toute seule."
   },
 
-  /* ── Chapitre 2 : le message d'accueil ───────────────────── */
-  accueil: {
-    eyebrow: "Pour toi, ce soir",
-    texte:
-      "Ce soir, le monde peut continuer de tourner comme d'habitude. Mais ici, quelques étoiles ont décidé de briller spécialement pour toi.",
-    titre: "Joyeux anniversaire, {prenom}.",
-    sousTitre: "Joyeux anniversaire, {surnom}.",
-    bouton: "Continuer l'histoire",
+  /* ---------- SCÈNE 2 — Joyeux anniversaire ---------- */
+  birthday: {
+    pre: "Joyeux anniversaire,",
+    name: "Nissi",
+    nicknameLine: "pour toi, Barbichou",
+    text: "Aujourd'hui, quelques étoiles brillent spécialement pour toi.",
+    button: "Voir les souvenirs"
   },
 
-  /* ── Chapitre 3 : la galerie des souvenirs ───────────────── */
-  /* type: "image" ou "video". Remplacer/augmenter librement.
-     - src    : chemin relatif depuis index.html (ex: assets/images/photos/nous.jpg)
-     - alt    : description courte (obligatoire pour l'accessibilité)
-     - legende: texte affiché sous la vignette
-     - poster : (optionnel, vidéos) image d'aperçu
-     Les fichiers absents sont remplacés automatiquement par un
-     emplacement élégant : le site ne casse jamais. */
-  galerie: {
-    eyebrow: "Chapitre trois",
-    titre: "La galerie des souvenirs",
-    intro:
-      "Quelques instants précieux. Remplace-les par vos propres souvenirs quand tu veux.",
-    // Ouvrir directement à la 1re image manquante ? (false = afficher les emplacements)
+  /* ---------- SCÈNE 3 — Galerie de souvenirs ----------
+   * Pour ajouter une photo : copie-la dans assets/images/photos/
+   * puis ajoute une ligne ci-dessous.
+   *
+   *  type: "photo"  → src (obligatoire), alt (description), caption (légende)
+   *  type: "video"  → src (.mp4), poster (image d'aperçu), alt, caption
+   *
+   * Pour retirer un souvenir : supprime sa ligne.
+   * Pour remplacer : change `src` (et `alt`/`caption`).
+   * Si un fichier est introuvable, un emplacement clairement
+   * identifié « À remplacer » s'affiche à sa place.
+   */
+  gallery: {
+    title: "Galerie de souvenirs",
+    intro: "Touche une image pour l'agrandir. Les vidéos se lancent dans la visionneuse.",
+    emptyLabel: "Emplacement pour une photo de Nissi",
+    brokenLabel: "Fichier introuvable — à remplacer",
     items: [
       {
-        id: "carte",
-        type: "image",
-        src: "assets/images/carte-nissi.png",
-        alt: "Carte d'anniversaire créée pour Nissi",
-        legende: "La carte d'anniversaire préparée pour toi",
+        type: "photo",
+        src: "assets/images/photos/carte-anniversaire.jpg",
+        alt: "Carte d'anniversaire pour Nissi : son portrait au milieu de roses roses, avec un poème.",
+        caption: "La carte d'anniversaire de Nissi"
       },
       {
-        id: "souvenir-1",
         type: "video",
-        src: "assets/media/souvenir-1.mp4",
-        poster: "",
-        alt: "Vidéo souvenir n°1",
-        legende: "Un moment à revoir",
+        src: "assets/video/souvenir-1.mp4",
+        poster: "assets/images/photos/souvenir-1-poster.jpg",
+        alt: "Vidéo souvenir numéro 1.",
+        caption: "Souvenir n° 1 (vidéo)"
       },
       {
-        id: "souvenir-2",
         type: "video",
-        src: "assets/media/souvenir-2.mp4",
-        poster: "",
-        alt: "Vidéo souvenir n°2",
-        legende: "Encore un souvenir",
-      },
-      // Ajoute ici d'autres photos, par exemple :
-      // { id:"photo-1", type:"image", src:"assets/images/photos/photo-1.jpg",
-      //   alt:"Description de la photo", legende:"Un beau souvenir" },
+        src: "assets/video/souvenir-2.mp4",
+        poster: "assets/images/photos/souvenir-2-poster.jpg",
+        alt: "Vidéo souvenir numéro 2.",
+        caption: "Souvenir n° 2 (vidéo)"
+      }
     ],
-    bouton: "Découvrir la lettre",
+    button: "Lire ma lettre"
   },
 
-  /* ── Chapitre 4 : la lettre pour Barbichou ───────────────── */
-  /* La lettre est un tableau de paragraphes. Les balises ne sont pas
-     interprétées : seuls des sauts de paragraphe sont créés. */
-  lettre: {
-    eyebrow: "Chapitre quatre",
-    titre: "La lettre pour Barbichou",
-    sousTitre: "Ouvre l'enveloppe quand tu es prête.",
-    boutonOuvrir: "Ouvrir la lettre",
-    // {prenom} et {surnom} sont remplacés automatiquement.
-    paragraphes: [
-      "Chère {prenom},",
-      "Il y a des personnes qui traversent une vie en laissant une lumière tranquille derrière elles. Tu es de celles-là. Aujourd'hui je voulais simplement m'arrêter un instant pour te dire à quel point cette amitié compte pour moi.",
-      "Merci d'être là, tout simplement. Merci pour la complicité, les fous rires, les silences confortables et ces instants ordinaires qui deviennent précieux quand ils sont partagés.",
-      "J'aimerais te souhaiter une année pleine de douceur : du bonheur, une santé solide, des projets qui aboutissent, et cette paix intérieure qui rend tout plus léger. Que la vie t'offre autant que tu donnes aux autres.",
-      "J'espère qu'on aura encore beaucoup de moments à partager, de nouvelles histoires à raconter et de souvenirs à construire.",
-      "Ce jardin secret est un peu le reflet de ce que tu représentes : discret, sincère, et fait pour ceux qui comptent vraiment.",
+  /* ---------- SCÈNE 4 — La lettre ---------- */
+  letter: {
+    title: "Une lettre pour Barbichou",
+    envelopeHint: "Touche l'enveloppe pour l'ouvrir",
+    openLabel: "Ouvrir la lettre pour Barbichou",
+    closeButton: "Refermer la lettre",
+    greeting: "Chère Nissi, ma Barbichou,",
+    paragraphs: [
+      "Il y a des amitiés qu'on n'essaie pas d'expliquer. On les reconnaît simplement à la façon dont elles rendent le monde un peu plus doux. La tienne est de celles-là.",
+      "Avant toute chose, je voulais te dire merci. Merci d'être cette personne douce, lumineuse et précieuse, et merci de compter dans ma vie. Pouvoir compter sur ton amitié est un cadeau dont je mesure toute la valeur.",
+      "Partager de beaux moments avec toi donne aux journées ordinaires une saveur particulière. Tu as ce don rare d'éclairer les instants simples, sans même t'en apercevoir, et c'est une vraie joie de te connaître.",
+      "Pour cette nouvelle année, je te souhaite du bonheur, le vrai, celui qui s'installe et qui reste ; une santé solide ; la réussite dans tout ce que tu entreprends ; et une paix profonde, celle qui permet de rêver grand l'esprit tranquille.",
+      "J'espère que notre amitié continuera de grandir, comme un jardin dont on prend soin avec patience, avec sincérité et avec beaucoup de lumière.",
+      "Joyeux anniversaire, Barbichou."
     ],
-    // Signature : modifie-la librement avant publication.
     signature: "Avec toute mon affection et une amitié qui compte énormément.",
-    bouton: "Continuer vers le jeu",
+    button: "Écouter l'ambiance"
   },
 
-  /* ── La musique (lecteur discret, disponible tout au long) ─ */
-  /* Playlist : les morceaux déposés dans assets/audio/ sont enchaînés
-     en boucle. Le premier morceau disponible est utilisé automatiquement.
-     Si aucun fichier n'est présent, le lecteur affiche un état neutre
-     et reste inactif, sans provoquer d'erreur. */
-  musique: {
-    titre: "Ambiance du jardin",
-    pistes: [
-      { src: "assets/audio/titre-01.mp3", titre: "Titre 1" },
-      { src: "assets/audio/titre-02.mp3", titre: "Titre 2" },
-      { src: "assets/audio/titre-03.mp3", titre: "Titre 3" },
-      { src: "assets/audio/titre-04.mp3", titre: "Titre 4" },
+  /* ---------- SCÈNE 5 — Musique d'ambiance ----------
+   * Les morceaux se trouvent dans assets/audio/. Ajoute, retire ou
+   * renomme-les ici. Si un fichier manque, il est simplement ignoré.
+   */
+  music: {
+    title: "Une ambiance pour le jardin",
+    intro: "Lance la musique si tu en as envie. Tu peux la couper à tout moment, elle suit le parcours.",
+    tracks: [
+      { title: "Titre 1", src: "assets/audio/titre-01.mp3" },
+      { title: "Titre 2", src: "assets/audio/titre-02.mp3" },
+      { title: "Titre 3", src: "assets/audio/titre-03.mp3" },
+      { title: "Titre 4", src: "assets/audio/titre-04.mp3" }
     ],
-    volume: 0.5, // 0 à 1
-    boucle: true,
+    unavailable: "Aucune piste n'a pu être chargée. Le parcours continue sans musique.",
+    button: "Aller chercher les étoiles"
   },
 
-  /* ── Chapitre 6 : le mini-jeu « Les étoiles de Barbichou » ─ */
-  jeu: {
-    eyebrow: "Chapitre cinq",
-    titre: "Les étoiles de Barbichou",
-    intro:
-      "Cinq étoiles se cachent dans le ciel. Touche-les pour révéler un message. Une étoile s'illumine à chaque fois.",
-    consigne: "Touche les étoiles une à une. Aucune limite de temps.",
-    bouton: "Révéler la surprise finale",
-    boutonRejouer: "Relancer le ciel",
-    // Cinq messages associés aux cinq étoiles.
-    etoiles: [
-      "Que ta journée soit aussi douce qu'un ciel d'été.",
-      "Je te souhaite mille raisons de sourire, même les jours gris.",
-      "Que tous tes projets trouvent leur chemin, un par un.",
-      "Prends soin de toi : ta lumière mérite d'être protégée.",
-      "Et surtout : reste exactement cette personne précieuse que tu es.",
-    ],
+  /* ---------- SCÈNE 6 — Mini-jeu « Les étoiles de Barbichou » ---------- */
+  game: {
+    title: "Les étoiles de Barbichou",
+    intro: "Cinq étoiles se cachent dans le ciel. Touche-les pour découvrir ce qu'elles ont à te dire.",
+    hint: "Besoin d'un indice ?",
+    reset: "Recommencer",
+    idle: "Choisis une étoile dans le ciel.",
+    completeText: "Les cinq étoiles forment la constellation de Barbichou.",
+    unlockButton: "Débloquer la surprise",
+    stars: [
+      { x: 16, y: 22, message: "Tu éclaires les journées ordinaires." },
+      { x: 78, y: 16, message: "Ta douceur est une vraie force." },
+      { x: 48, y: 46, message: "Tes rêves méritent de fleurir." },
+      { x: 20, y: 76, message: "Tu es une belle âme, et ça se voit." },
+      { x: 82, y: 70, message: "Cette nouvelle année sera à ton image : lumineuse." }
+    ]
   },
 
-  /* ── Chapitre 7 : la surprise finale ─────────────────────── */
+  /* ---------- SCÈNE 7 — La surprise finale ---------- */
   finale: {
-    eyebrow: "La surprise",
-    titre: "Barbichou, aujourd'hui est ton jour.",
-    texte: [
-      "Je te souhaite une vie remplie de raisons de sourire, de rêves qui prennent forme, de personnes qui te veulent sincèrement du bien et de moments qui deviennent de beaux souvenirs.",
-      "Que cette nouvelle année t'apporte bien plus que ce que tu oses espérer. Reste cette personne précieuse qui rend l'amitié si belle.",
-    ],
-    titreFinal: "Joyeux anniversaire, {surnom}.",
-    boutonRevoir: "Revoir ma surprise",
+    title: "Barbichou, aujourd'hui est ton jour.",
+    message:
+      "Je te souhaite une vie remplie de raisons de sourire, de rêves qui prennent forme, de belles surprises et de personnes qui te veulent sincèrement du bien. Que cette nouvelle année t'apporte la paix, la réussite, de merveilleux souvenirs et des joies inattendues. Continue d'avancer à ta manière et de profiter de chaque belle chose que la vie t'offre. Joyeux anniversaire, Barbichou.",
+    replay: "Revivre la surprise",
+    rereadLetter: "Relire la lettre",
+    restart: "Recommencer depuis le début"
   },
 
-  /* ── Navigation / libellés d'accessibilité ───────────────── */
+  /* ---------- Libellés généraux ---------- */
   ui: {
-    chapitres: [
-      "Invitation",
-      "Accueil",
-      "Souvenirs",
-      "Lettre",
-      "Étoiles",
-      "Surprise",
+    back: "Scène précédente",
+    home: "Retour au début",
+    sceneNames: [
+      "Invitation", "Anniversaire", "Souvenirs", "Lettre",
+      "Musique", "Étoiles", "Surprise"
     ],
-    suivante: "Chapitre suivant",
-    precedente: "Chapitre précédent",
-    fermerVisionneuse: "Fermer la visionneuse",
-    imagePrecedente: "Image précédente",
-    imageSuivante: "Image suivante",
-    lecteurMusique: "Lecteur de musique",
-    jouerMusique: "Lire la musique",
-    pauseMusique: "Mettre la musique en pause",
-    muetMusique: "Couper le son",
-    sonMusique: "Rétablir le son",
-    volumeMusique: "Volume de la musique",
-    etatLecture: "En lecture",
-    etatPause: "En pause",
-    etatIndisponible: "Musique non disponible",
-    progressionJeu: "Étoiles trouvées : {n} sur {total}",
-    messageEtoileTrouvee: "Étoile {n} sur {total} révélée.",
-  },
+    locked: "Verrouillé : découvre d'abord les cinq étoiles"
+  }
 };
-                                                                                                                                                                                                                                                                                                                
