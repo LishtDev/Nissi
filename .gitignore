@@ -1,0 +1,11 @@
+# Dépendances éventuelles (si tu utilises un gestionnaire de paquets)
+node_modules/
+
+# Fichiers de travail / système
+.DS_Store
+Thumbs.db
+*.bak
+*.tmp
+
+# Dossier source des médias originaux (doublons des fichiers déjà dans assets/)
+album/

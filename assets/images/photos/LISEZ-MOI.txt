@@ -1,0 +1,32 @@
+DOSSIER DES PHOTOS / VIDÉOS PERSONNELLES
+========================================
+
+Place ici les souvenirs que tu veux montrer dans la galerie (chapitre 3).
+
+1. Ajoute tes fichiers, par exemple :
+     photo-1.jpg
+     photo-2.webp
+     nous-deux.png
+
+   Astuce performance : privilégie le format WebP (ou AVIF), et garde
+   les images à une largeur raisonnable (1600 px max) pour un chargement rapide.
+
+2. Déclare chaque média dans le fichier ../../config/content.js,
+   dans la section  galerie.items  :
+
+     { id: "photo-1", type: "image",
+       src: "assets/images/photos/photo-1.jpg",
+       alt: "Description courte (obligatoire, pour l'accessibilité)",
+       legende: "Le texte affiché sous la photo" },
+
+   Pour une vidéo, utilise  type: "video"  et, si tu veux, un poster :
+     { id: "clip", type: "video",
+       src: "assets/media/mon-clip.mp4",
+       poster: "assets/images/photos/mon-clip.jpg",
+       alt: "Description de la vidéo", legende: "Un moment à revoir" }
+
+3. Les chemins sont relatifs à index.html (ne mets jamais de « / » au début).
+
+Important (confidentialité) : si le site est publié en ligne, toute personne
+possédant le lien peut voir ces photos. Publie-les uniquement avec l'accord
+de la personne concernée.
